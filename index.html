@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ball</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+        integrity="sha512-t4GWSVZO1eC8BM339Xd7Uphw5s17a86tIZIj8qRxhnKub6WoyhnrxeCIMeAqBPgdZGlCcG2PrZjMc+Wr78+5Xg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        .ball {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 19px;
+            height: 19px;
+            background-color: slateblue;
+            border-radius: 50%;
+        }
+
+        .box {
+            position: relative;
+            width: 100%;
+            height: 20px;
+        }
+
+        .border-radius {
+            border-radius: 2em;
+        }
+
+        .animate {
+            animation: move 4s infinite;
+        }
+
+        @keyframes move {
+            0% {
+                left: 0px;
+            }
+
+            50% {
+                left: calc(100% - 20px);
+            }
+
+            100% {
+                left: 0px;
+            }
+        }
+
+        .w-18 {
+            width: 18%;
+        }
+
+        .w-20 {
+            width: 20%;
+        }
+
+        .w-30 {
+            width: 30%;
+        }
+
+        .w-40 {
+            width: 40%;
+        }
+
+        .w-41 {
+            width: 41%;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -40px;
+        }
+
+        .text {
+            position: fixed;
+        }
+
+        #point::after {
+            content: "分";
+        }
+
+        #time::after {
+            content: "秒";
+        }
+        #num::after {
+            content: "球";
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-12 my-5">
+                <h3 class="text-center fw-bold">投籃大賽</h3>
+            </div>
+            <div class="col-12 border border-black  p-5 d-flex flex-column align-items-center border-radius">
+                <p class="fw-bold fs-5">
+                    時間:
+                    <span id="time">120</span>
+                </p>
+                <p class="fw-bold fs-5 text-success">歷史最高分數</p>
+                <div class="box w-50 d-flex border border-black mt-5">
+                    <div class="bg-white w-41" id="length1"></div>
+
+                    <!-- 得分區 -->
+                    <div class="w-18 d-flex">
+                        <!-- 2分 -->
+                        <div class="bg-warning w-40" id="length2"></div>
+                        <!-- 3分 -->
+                        <div class="bg-danger w-20" id="length3"></div>
+                        <!-- 2分 -->
+                        <div class="bg-warning w-40"></div>
+                    </div>
+
+                    <div class="bg-white w-41" id="length5"></div>
+                    <div class="ball"></div>
+                    
+                </div>
+                <span class="mt-3 fs-4">
+                    剩餘球數:
+                    <span id="num">2</span>
+                </span>
+                <div class="border w-100 mt-3"></div>
+                <p class="text-primary mt-3 fs-4" id="point">0</p>
+                <div>
+                    <button type="button" class="btn btn-primary" id="begin">開始</button>
+                    <button type="button" class="btn btn-success" id="game">投球</button>
+                    <button type="button" class="btn btn-secondary" id="reset">重置</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script>
+        let ball = 0;
+        let point = 0;
+        let time = 120;
+        let isGame = false;
+        let timerflag;
+        let i=0;
+
+        $("#game").hide();
+        $("#begin").click(begin);
+        $("#reset").click(reset);
+        $("#game").click(game);
+        $(document).keydown((e) => {
+            if (e.key == "z" || e.key == "x") {
+                if (isGame) {
+                    game();
+                } else {
+                    begin();
+                }
+            } else if (e.key == "r") {
+                reset();
+            }
+        })
+
+        function begin() {
+            ball = 2;
+            point = 0;
+            time = 120;
+            isGame = true;
+            i=0;
+            $("#begin").hide();
+            $("#game").show();
+
+            $("#point").text(point);
+            $("#time").text(time);
+            clearInterval(timerflag);
+            timerflag = setInterval(timer, 1000);
+            $(".ball").addClass("animate");
+        }
+
+        function reset() {
+            ball = 0;
+            isGame = false;
+            $("#begin").show();
+            $("#game").hide();
+            $(".ball").removeClass("animate");
+            $("#length1").css("width", `41%`);
+            $("#length5").css("width", `41%`);
+            $("#num").text("2");
+            clearInterval(timerflag);
+            time = 120;
+        }
+
+
+        function game() {
+
+            if (ball>0) {
+                let left = $(".ball").css("left");
+                let pointer=`<div class="pointer text-center fs-4 pointer-${i}">
+                                <div class="text"></div>
+                            </div>`;
+                left = left.substring(0, left.length - 2);
+
+                leftPx = Number(left) + "px";
+                $(".box").append(pointer);
+                $(`.pointer-${i}`).css("left", leftPx);
+
+                ball--;
+                let tmp=i;
+                i++;
+                $("#num").text(ball);
+                setTimeout(() => { 
+                    $(`.pointer-${tmp}`).remove()
+                }, 1000);
+                setTimeout(()=>{
+                    if(ball<2){
+                        ball++;
+                    }
+                    $("#num").text(ball); 
+                },2000);
+
+                let length1 = $("#length1").css("width");
+                let length2 = $("#length2").css("width");
+                let length3 = $("#length3").css("width");
+                let length4 = $("#length2").css("width");
+
+                length1 = Number(length1.substring(0, length1.length - 2)) - 9;
+                length2 = Number(length2.substring(0, length2.length - 2)) + length1;
+                length3 = Number(length3.substring(0, length3.length - 2)) + length2;
+                length4 = Number(length4.substring(0, length4.length - 2)) + length3;
+
+                if (left >= length1 && left < length2) {
+                    $(`.pointer-${tmp}>.text`).css("color","green");
+                    $(`.pointer-${tmp}>.text`).text("+2");
+                    rand();
+                    point += 2;
+                } else if (left >= length2 && left < length3) {
+                    $(`.pointer-${tmp}>.text`).css("color","blue");
+                    $(`.pointer-${tmp}>.text`).text("+3");
+                    rand();
+                    point += 3;
+                } else if (left >= length3 && left < length4) {
+                    $(`.pointer-${tmp}>.text`).css("color","green");
+                    $(`.pointer-${tmp}>.text`).text("+2");
+                    rand();
+                    point += 2;
+                } else {
+                    $(`.pointer-${tmp}>.text`).css("color","red");
+                    $(`.pointer-${tmp}>.text`).text("未命中");
+                }
+
+                $("#point").text(point);
+            }
+        }
+
+        function timer() {
+            time--;
+            if (time <= 0) {
+                reset();
+            }
+            $("#time").text(time);
+        }
+
+        function rand() {
+            let random = Math.floor(Math.random() * 82);
+            let random2 = 82 - random;
+            $("#length1").css("width", `${random}%`);
+            $("#length5").css("width", `${random2}%`);
+        }
+
+        
+    </script>
+</body>
+
+</html>
